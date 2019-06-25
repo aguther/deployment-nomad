@@ -1,0 +1,33 @@
+---
+- name: check for binary
+  stat:
+    path: /usr/local/bin/weave
+  register: weave_binary
+
+- name: check for docker
+  command: which docker
+  register: docker_command
+  failed_when: false
+  changed_when: false
+  when: weave_binary.stat.exists == true
+
+- name: reset
+  command: "/usr/local/bin/weave reset --force"
+  when:
+    - weave_binary.stat.exists == true
+    - docker_command.rc == 0
+
+- name: remove CNI plugin
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_fileglob:
+    - /opt/cni/bin/weave-*
+    - /etc/cni/net.d/*weave*
+  when: weave_binary.stat.exists == true
+
+- name: delete binary
+  file:
+    path: /usr/local/bin/weave
+    state: absent
+  when: weave_binary.stat.exists == true

@@ -1,0 +1,8 @@
+---
+- name: copy
+  copy:
+    src: cpuloadgen
+    dest: /bin/cpuloadgen
+    owner: root
+    group: root
+    mode: 0755

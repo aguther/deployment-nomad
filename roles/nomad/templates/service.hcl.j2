@@ -1,0 +1,27 @@
+data_dir  = "{{ nomad_data_directory }}"
+log_level = "INFO"
+
+region     = "{{ nomad_region }}"
+datacenter = "{{ nomad_datacenter }}"
+
+bind_addr = "0.0.0.0"
+
+advertise {
+  http = "{{ nomad_host_ipv4_address }}"
+  rpc  = "{{ nomad_host_ipv4_address }}"
+  serf = "{{ nomad_host_ipv4_address }}"
+}
+
+consul {
+  address = "127.0.0.1:8500"
+}
+
+server {
+  enabled = true
+  bootstrap_expect = {{ groups[nomad_group] | length }}
+}
+
+client {
+  enabled = true
+  servers = ["127.0.0.1:4647"]
+}

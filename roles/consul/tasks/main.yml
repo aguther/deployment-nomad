@@ -1,0 +1,58 @@
+---
+
+- name: prerequisites
+  yum:
+    name: unzip
+    state: present
+
+- name: download and install binary
+  unarchive:
+    src: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
+    dest: "{{ consul_bin_directory }}"
+    remote_src: True
+    validate_certs: False
+    owner: root
+    group: root
+    mode: 0755
+
+- name: create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+  with_items:
+    - "{{ consul_config_directory }}"
+    - "{{ consul_data_directory }}"
+
+- name: create consul configuration
+  template:
+    src: service.json.j2
+    dest: "{{ consul_config_directory }}/service.json"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create systemd unit
+  template:
+    src: systemd.service.j2
+    dest: "/usr/lib/systemd/system/{{ consul_systemd_unit_name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: enable and start
+  service:
+    name: "{{ consul_systemd_unit_name }}.service"
+    state: started
+    enabled: yes
+
+- name: wait for service
+  wait_for:
+    port: 8500
+    delay: 1
+
+- name: join servers
+  command: "{{ consul_bin_directory }}/consul join {{ item }}"
+  with_items:
+    - "{{ groups[consul_group] }}"

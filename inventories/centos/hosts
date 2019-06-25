@@ -1,0 +1,74 @@
+# -----------------------------------------------------------------------------
+#  host definitions
+# -----------------------------------------------------------------------------
+[all]
+centos-1.vm ansible_host=192.168.108.201 ipaddress=192.168.108.201
+centos-2.vm ansible_host=192.168.108.202 ipaddress=192.168.108.202
+centos-3.vm ansible_host=192.168.108.203 ipaddress=192.168.108.203
+centos-4.vm ansible_host=192.168.108.204 ipaddress=192.168.108.204
+centos-5.vm ansible_host=192.168.108.205 ipaddress=192.168.108.205
+centos-6.vm ansible_host=192.168.108.206 ipaddress=192.168.108.206
+
+
+# -----------------------------------------------------------------------------
+#  centos
+# -----------------------------------------------------------------------------
+[centos]
+centos-1.vm
+centos-2.vm
+centos-3.vm
+centos-4.vm
+centos-5.vm
+centos-6.vm
+
+[centos:vars]
+# ansible
+ansible_become=True
+ansible_become_method=sudo
+ansible_become_user=root
+ansible_connection=ssh
+ansible_ssh_user=root
+#ansible_ssh_pass=root
+ansible_ssh_private_key_file=.ssh/ansible
+
+# ssh bootstrap
+ssh_bootstrap_user=root
+ssh_bootstrap_password=root
+
+# proxy
+#os_proxy_http_proxy='http://X:3128'
+#os_proxy_https_proxy='http://X:3128'
+#os_proxy_no_proxy='*.vm,172.16.72.0/24,10.0.0.0/8'
+
+# docker
+docker_group_users=user
+
+# docker registry
+docker_registry_port=5000
+docker_registry_auth_user=docker-registry
+docker_registry_auth_password=P@ssw0rd
+docker_registry_san_ip=["192.168.108.221"]
+
+# docker registry - load images
+docker_load_push_images_path=docker-images
+docker_load_push_images_registry_url=192.168.108.221:5000
+docker_load_push_images_registry_username=docker-registry
+docker_load_push_images_registry_password=P@ssw0rd
+
+# docker add registry certificates
+# example: ["{ path: 'cert_file.pem', url: 'my.registry.domain.com', port: 5000 }"]
+docker_add_registry_certificates=[]
+
+
+# -----------------------------------------------------------------------------
+#  nomad / consul groups
+# -----------------------------------------------------------------------------
+[datacenter-1]
+centos-1.vm
+centos-2.vm
+centos-3.vm
+
+[datacenter-2]
+centos-4.vm
+centos-5.vm
+centos-6.vm

@@ -1,0 +1,2 @@
+= deployment-nomad
+Repository to deploy Consul and Nomad on bare-metal or virtual machines.

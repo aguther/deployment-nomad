@@ -1,0 +1,57 @@
+---
+- name: prerequisites
+  yum:
+    name: unzip
+    state: present
+
+- name: download and install binary
+  unarchive:
+    src: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_linux_amd64.zip"
+    dest: "{{ nomad_bin_directory }}"
+    remote_src: True
+    validate_certs: False
+    owner: root
+    group: root
+    mode: 0755
+
+- name: create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+  with_items:
+    - "{{ nomad_config_directory }}"
+    - "{{ nomad_data_directory }}"
+
+- name: create nomad configuration
+  template:
+    src: service.hcl.j2
+    dest: "{{ nomad_config_directory }}/service.hcl"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create systemd unit
+  template:
+    src: systemd.service.j2
+    dest: "/usr/lib/systemd/system/{{ nomad_systemd_unit_name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: enable and start
+  service:
+    name: "{{ nomad_systemd_unit_name }}.service"
+    state: started
+    enabled: yes
+
+- name: wait for service
+  wait_for:
+    port: 4646
+    delay: 1
+
+- name: join servers
+  command: "{{ nomad_bin_directory }}/nomad server-join {{ item }}"
+  with_items:
+    - "{{ groups[nomad_group] }}"
