@@ -1,7 +1,8 @@
 ---
 - name: prerequisites
   yum:
-    name: unzip
+    name:
+      - unzip
     state: present
 
 - name: download and install binary

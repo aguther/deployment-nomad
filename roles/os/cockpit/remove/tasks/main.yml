@@ -1,5 +1,6 @@
 ---
 - name: remove packages
   yum:
-    name: cockpit
+    name:
+      - cockpit
     state: removed

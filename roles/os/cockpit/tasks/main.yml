@@ -1,15 +1,14 @@
 ---
 - name: install
   yum:
-    name: "{{ item }}"
+    name:
+      - cockpit
+      - cockpit-dashboard
+      - cockpit-doc
+      - cockpit-docker
+      - cockpit-pcp
+      - cockpit-shell
     state: latest
-  with_items:
-    - cockpit
-    - cockpit-dashboard
-    - cockpit-doc
-    - cockpit-docker
-    - cockpit-pcp
-    - cockpit-shell
 
 - name: enable and start
   service:
